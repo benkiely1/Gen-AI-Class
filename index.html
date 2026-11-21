@@ -6,23 +6,24 @@
 <title>IntraForge Idea Desk</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: idea form on the left, the business case on the right as a controlled-document sheet; stacks to one column on a phone. */
+/* Layout: three-step flow (describe, answer questions, review and send). Form on the left, the business case as a controlled-document sheet on the right; one column on a phone. */
 :root {
   --bg: #eaeef2; --surface: #fafbfc; --sunk: #e1e6ec;
   --ink: #15202c; --muted: #566475; --line: #c9d1da;
-  --accent: #0b5cad; --accent-ink: #ffffff;
+  --accent: #0b5cad; --accent-ink: #ffffff; --accent-soft: #dbe8f6;
   --ok: #17704a; --ok-bg: #dcf1e6;
   --warn: #8f5300; --warn-bg: #fbecd0;
   --stop: #a8231c; --stop-bg: #fbe1de;
   --display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
   --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f151c; --surface: #18212b; --sunk: #121a22;
     --ink: #e6ecf2; --muted: #9ba9b8; --line: #2e3b49;
-    --accent: #74b4f6; --accent-ink: #0b1722;
+    --accent: #74b4f6; --accent-ink: #0b1722; --accent-soft: #1b3048;
     --ok: #62d09b; --ok-bg: #153527;
     --warn: #f1b558; --warn-bg: #3a2c12;
     --stop: #ff8f86; --stop-bg: #40191a;
@@ -32,117 +33,215 @@
 :root[data-theme="dark"] {
   --bg: #0f151c; --surface: #18212b; --sunk: #121a22;
   --ink: #e6ecf2; --muted: #9ba9b8; --line: #2e3b49;
-  --accent: #74b4f6; --accent-ink: #0b1722;
+  --accent: #74b4f6; --accent-ink: #0b1722; --accent-soft: #1b3048;
   --ok: #62d09b; --ok-bg: #153527;
   --warn: #f1b558; --warn-bg: #3a2c12;
   --stop: #ff8f86; --stop-bg: #40191a;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; padding-inline: 16px; padding-block: 20px 48px; }
-.wrap { max-width: 1120px; margin-inline: auto; display: flex; flex-direction: column; gap: 20px; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; padding-inline: 16px; padding-block: 20px 48px; }
+.wrap { max-width: 1160px; margin-inline: auto; display: flex; flex-direction: column; gap: 18px; }
 header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
 .brand { font-family: var(--display); font-weight: 600; font-size: 28px; letter-spacing: 0.01em; margin: 0; }
 .tagline { color: var(--muted); margin: 0; font-size: 15px; }
-.notice { background: var(--warn-bg); color: var(--ink); border-left: 4px solid var(--warn); padding: 10px 14px; font-size: 14px; }
+.notice { background: var(--warn-bg); color: var(--ink); border-left: 4px solid var(--warn); padding: 10px 14px; font-size: 14px; margin: 0; }
 .notice strong { color: var(--warn); }
+
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.steps li { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); padding: 6px 12px 6px 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.steps li b { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--sunk); color: var(--muted); font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.steps li.now { color: var(--ink); border-color: var(--accent); font-weight: 600; }
+.steps li.now b { background: var(--accent); color: var(--accent-ink); }
+.steps li.done b { background: var(--ok-bg); color: var(--ok); }
+.steps li.skip { opacity: 0.55; }
+
 .grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
-@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
 .grid > * { min-width: 0; }
-h2 { font-family: var(--display); font-weight: 600; font-size: 21px; margin: 0; text-wrap: balance; }
-.form { display: flex; flex-direction: column; gap: 14px; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; text-wrap: balance; }
+.panel { display: flex; flex-direction: column; gap: 14px; }
 .step { color: var(--muted); font-size: 14px; margin: 0; }
-label { font-weight: 500; font-size: 14px; display: block; margin-bottom: 6px; }
-textarea, select { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; }
-textarea { min-height: 150px; resize: vertical; }
-textarea:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-textarea[aria-invalid="true"] { border-color: var(--stop); }
+label, .lbl { font-weight: 500; font-size: 14px; display: block; margin-bottom: 6px; }
+textarea, select, input[type="text"], input[type="number"] { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 9px 11px; }
+textarea { min-height: 130px; resize: vertical; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[aria-invalid="true"] { border-color: var(--stop) !important; }
 .err { color: var(--stop); font-size: 14px; margin: 6px 0 0; font-weight: 500; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips span { font-size: 14px; color: var(--muted); align-self: center; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.hintlist { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.hintlist li::before { content: "○ "; font-family: var(--mono); }
+.hintlist li.have { color: var(--ok); }
+.hintlist li.have::before { content: "● "; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chips span { font-size: 14px; color: var(--muted); }
 .chip { font: inherit; font-size: 14px; background: transparent; color: var(--accent); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
 .chip:hover { border-color: var(--accent); }
-.go { font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: 0.02em; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 4px; padding: 12px 18px; cursor: pointer; align-self: flex-start; }
-.go:disabled { opacity: 0.6; cursor: progress; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.go { font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: 0.02em; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 4px; padding: 11px 18px; cursor: pointer; }
+.go:disabled { opacity: 0.55; cursor: not-allowed; }
 .ghost { font: inherit; font-weight: 500; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 8px 14px; cursor: pointer; }
+.linkbtn { font: inherit; font-size: 14px; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; }
 
 .sheet { background: var(--surface); border: 1px solid var(--line); }
-.empty { padding: 28px 22px; color: var(--muted); }
+.empty { padding: 26px 22px; color: var(--muted); }
 .empty h2 { color: var(--ink); margin-bottom: 8px; }
 .empty ul { margin: 10px 0 0; padding-left: 20px; }
 .working { padding: 28px 22px; font-family: var(--mono); font-size: 14px; color: var(--muted); }
+dl { margin: 0; }
 .dochead { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); background: var(--sunk); }
 @media (max-width: 560px) { .dochead { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.dochead div { padding: 8px 12px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: -1px; min-width: 0; }
+.dochead div { padding: 8px 12px; border-right: 1px solid var(--line); min-width: 0; }
 .dochead dt { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .dochead dd { margin: 0; font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
-dl { margin: 0; }
 .body { padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 18px; }
 .titleline { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .titleline h2 { font-size: 26px; flex: 1 1 260px; }
 .pill { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .pill.ok { background: var(--ok-bg); color: var(--ok); }
-.pill.change { background: var(--warn-bg); color: var(--warn); }
+.pill.change, .pill.unknown { background: var(--warn-bg); color: var(--warn); }
 .pill.conflict { background: var(--stop-bg); color: var(--stop); }
-.sec h3 { font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; font-weight: 600; }
+.readas { font-size: 13px; color: var(--muted); background: var(--sunk); padding: 8px 12px; border-radius: 4px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.readas code { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); }
+@media (max-width: 620px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.summary > div { padding: 10px 12px; border-right: 1px solid var(--line); min-width: 0; }
+.summary > div:last-child { border-right: 0; }
+.summary .k { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.summary .v { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.summary .v.sm { font-size: 18px; }
+.sec h3 { font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; font-weight: 600; }
 .sec p { margin: 0; max-width: 65ch; }
 .quote { border-left: 3px solid var(--line); padding-left: 12px; color: var(--muted); font-style: italic; overflow-wrap: anywhere; }
-.saving { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; border-block: 1px solid var(--line); padding-block: 12px; }
-.saving .big { font-family: var(--display); font-weight: 600; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
-.saving .side { color: var(--muted); font-size: 14px; }
-.tablewrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-td, th { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 0; }
-th { font-weight: 500; color: var(--muted); font-size: 13px; }
-tr.total td { font-weight: 600; border-bottom: 0; }
+.est { display: flex; flex-direction: column; gap: 10px; }
+.estrow { border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.estrow .head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-weight: 500; }
+.estrow .head .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.factors { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-size: 14px; color: var(--muted); }
+.factors input { width: 6.5em; padding: 4px 6px; font-family: var(--mono); font-size: 13px; text-align: right; }
+.factors input.ai { border-style: dashed; border-color: var(--warn); background: var(--warn-bg); }
+.legend { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.swatch { display: inline-block; width: 18px; height: 12px; vertical-align: -1px; border: 1px dashed var(--warn); background: var(--warn-bg); margin-right: 4px; }
+.swatch.you { border: 1px solid var(--line); background: var(--surface); }
 .sop { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.sop li { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 10px; font-size: 15px; }
-@media (max-width: 480px) { .sop li { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+.sop li { border: 1px solid var(--line); border-radius: 4px; padding: 8px 12px; }
+.sop .line1 { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 10px; font-size: 15px; }
+@media (max-width: 480px) { .sop .line1 { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 .sop code { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+.sop details { margin-top: 6px; font-size: 14px; }
+.sop summary { cursor: pointer; color: var(--accent); }
+.clause { margin: 6px 0 0; padding: 8px 10px; background: var(--sunk); border-left: 3px solid var(--accent); font-size: 14px; }
+.clause .ref { font-family: var(--mono); font-size: 12px; color: var(--muted); display: block; margin-bottom: 2px; }
+.review { border: 2px solid var(--accent); border-radius: 4px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--accent-soft); }
+.review label.tick { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 15px; margin: 0; cursor: pointer; }
+.review input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; flex: none; accent-color: var(--accent); }
+.sent { border: 1px solid var(--ok); background: var(--ok-bg); padding: 12px 14px; border-radius: 4px; }
+.sent strong { color: var(--ok); }
 .qs { margin: 0; padding-left: 20px; }
 .foot { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
 .small { font-size: 13px; color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: no-preference) { .sheet { transition: border-color .2s; } }
 </style>
-
 </head>
-<body style="margin:0">
+<body>
 <div class="wrap">
   <header class="top">
     <h1 class="brand">IntraForge</h1>
     <p class="tagline">Turn a rough shop-floor idea into a business case your site leadership can decide on.</p>
   </header>
 
-  <p class="notice"><strong>Prototype.</strong> The AI in this demo is simulated. Business cases are prewritten and picked by keywords in your idea. Figures, SOP numbers and the 5% savings share are sample values, not real site data.</p>
+  <p class="notice"><strong>Prototype.</strong> The AI is simulated: IntraForge picks a prewritten template from your area and keywords, then calculates the saving from the figures shown. SOP numbers, clauses, rates and the 5% share are sample values. Nothing you type is saved or sent anywhere. Do not enter real company data.</p>
+
+  <ol class="steps" id="steps" aria-label="Progress">
+    <li id="st1" class="now"><b>1</b>Describe your idea</li>
+    <li id="st2"><b>2</b>Answer a few questions</li>
+    <li id="st3"><b>3</b>Check and send</li>
+  </ol>
 
   <div class="grid">
-    <form class="form" id="ideaForm" novalidate>
-      <h2>Your idea</h2>
-      <p class="step">Write it the way you would say it to a colleague. No template needed.</p>
-      <div>
-        <label for="area">Where does it apply?</label>
-        <select id="area">
-          <option>Packaging</option>
-          <option>Changeover</option>
-          <option>Cleaning and sanitation</option>
-          <option>Quality checks</option>
-          <option>Somewhere else</option>
-        </select>
-      </div>
-      <div>
-        <label for="idea">What would you change?</label>
-        <textarea id="idea" aria-describedby="ideaErr">Every time we change over Line 3 we lose ages hunting for the change parts. Could we keep them on a trolley beside the line, laid out in the order we fit them?</textarea>
-        <p class="err" id="ideaErr" role="alert" hidden></p>
-      </div>
-      <div class="chips" aria-label="Example ideas">
-        <span>Try an example:</span>
-        <button type="button" class="chip" data-ex="0">Changeover</button>
-        <button type="button" class="chip" data-ex="1">Cleaning</button>
-        <button type="button" class="chip" data-ex="2">Label waste</button>
-        <button type="button" class="chip" data-ex="3">A risky one</button>
-      </div>
-      <button class="go" id="go" type="submit">Build business case</button>
-    </form>
+    <div>
+      <form class="panel" id="ideaForm" novalidate>
+        <h2>Your idea</h2>
+        <p class="step">Write it the way you would say it to a colleague. No template needed.</p>
+        <div>
+          <label for="area">Where does it apply?</label>
+          <select id="area" aria-describedby="areaErr">
+            <option value="">Choose an area…</option>
+            <option value="changeover">Changeover</option>
+            <option value="cleaning">Cleaning and sanitation</option>
+            <option value="labels">Packaging and labelling</option>
+            <option value="quality">Quality checks</option>
+            <option value="other">Somewhere else</option>
+          </select>
+          <p class="err" id="areaErr" role="alert" hidden></p>
+        </div>
+        <div>
+          <label for="idea">What would you change?</label>
+          <textarea id="idea" aria-describedby="ideaErr ideaHint" placeholder="For example: we lose time at every changeover looking for parts. Could we keep them on a trolley by the line?"></textarea>
+          <p class="err" id="ideaErr" role="alert" hidden></p>
+          <ul class="hintlist" id="ideaHint" aria-label="A strong idea says">
+            <li id="h-where">where it happens</li>
+            <li id="h-loss">what is lost today</li>
+            <li id="h-change">what you would change</li>
+          </ul>
+        </div>
+        <div class="chips" aria-label="Example ideas">
+          <span>Try an example:</span>
+          <button type="button" class="chip" data-ex="0">Changeover</button>
+          <button type="button" class="chip" data-ex="1">Label waste</button>
+          <button type="button" class="chip" data-ex="2">Filler jams</button>
+          <button type="button" class="chip" data-ex="3">A risky one</button>
+        </div>
+        <div class="btns"><button class="go" id="go" type="submit">Build business case</button></div>
+      </form>
+
+      <form class="panel" id="fuForm" novalidate hidden>
+        <h2>A few details first</h2>
+        <p class="step">IntraForge could not match your idea to a known process, so it needs the basics to estimate a saving. Use your best guess; you can change every figure afterwards.</p>
+        <div>
+          <label for="fu-where">Which line, machine or task does it affect?</label>
+          <input type="text" id="fu-where" placeholder="e.g. Filler 2 on Line 4">
+        </div>
+        <div>
+          <label for="fu-loss">What is lost today?</label>
+          <select id="fu-loss">
+            <option value="">Choose one…</option>
+            <option value="time">Time: the line stops or slows down</option>
+            <option value="material">Material: product or packaging is thrown away</option>
+            <option value="rework">Labour: rework or extra checking</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div>
+            <label for="fu-often">How often does it happen?</label>
+            <input type="number" id="fu-often" min="0" step="any" inputmode="decimal" placeholder="e.g. 5">
+          </div>
+          <div>
+            <label for="fu-period">&nbsp;</label>
+            <select id="fu-period" aria-label="How often: per">
+              <option value="day">times per day</option>
+              <option value="week" selected>times per week</option>
+              <option value="month">times per month</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="fu-amount" id="fu-amount-lbl">How much is lost each time?</label>
+          <input type="number" id="fu-amount" min="0" step="any" inputmode="decimal" placeholder="e.g. 20">
+        </div>
+        <div>
+          <label for="fu-change">What would you do differently?</label>
+          <textarea id="fu-change" style="min-height:90px"></textarea>
+        </div>
+        <p class="err" id="fuErr" role="alert" hidden></p>
+        <div class="btns">
+          <button class="go" type="submit">Build business case</button>
+          <button type="button" class="linkbtn" id="fuBack">Back to my idea</button>
+        </div>
+      </form>
+    </div>
 
     <section class="sheet" id="result" aria-live="polite">
       <div class="empty">
@@ -150,10 +249,11 @@ tr.total td { font-weight: 600; border-bottom: 0; }
         <p>Press <strong>Build business case</strong> and IntraForge will draft:</p>
         <ul>
           <li>the problem and the proposed change, in plain terms</li>
-          <li>an estimated annual saving, with the working shown</li>
-          <li>a check against the site's SOPs and work instructions</li>
+          <li>an estimated annual saving, with every figure editable</li>
+          <li>a check against the site's SOPs, with the clause it relies on</li>
           <li>a recommended next step, and your share of the saving</li>
         </ul>
+        <p>If your idea is missing key details, it will ask you for them first. You check the draft before anything goes to leadership.</p>
       </div>
     </section>
   </div>
@@ -162,12 +262,13 @@ tr.total td { font-weight: 600; border-bottom: 0; }
 <script>
 var SHARE = 0.05;
 var EXAMPLES = [
-  { area: 'Changeover', text: 'Every time we change over Line 3 we lose ages hunting for the change parts. Could we keep them on a trolley beside the line, laid out in the order we fit them?' },
-  { area: 'Cleaning and sanitation', text: 'The final rinse on the mixing vessel runs for a fixed time even when the water is already clean. Could we stop the rinse once the reading is good instead?' },
-  { area: 'Packaging', text: 'We throw away a strip of good labels at every reel change because nobody knows where the splice is. A marker on the reel would cut the waste.' },
-  { area: 'Quality checks', text: 'We should skip the second-person check on line clearance. It slows us down and nobody ever finds anything.' }
+  { area: 'changeover', text: 'Every time we change over Line 3 we lose ages hunting for the change parts. Could we keep them on a trolley beside the line, laid out in the order we fit them?' },
+  { area: 'labels', text: 'We throw away a strip of good labels at every reel change because nobody knows where the splice is. A marker on the reel would cut the waste.' },
+  { area: 'other', text: 'The filler on Line 4 keeps jamming on nights and we lose a lot of time getting it going again.' },
+  { area: 'quality', text: 'We should skip the second-person check on line clearance. It slows us down and nobody ever finds anything.' }
 ];
 
+/* Prewritten "AI" templates. Each saving row is the product of its factors, divided by div. */
 var CASES = {
   changeover: {
     no: 'IF-2026-0142', verdict: 'ok', verdictLabel: 'Fits current SOPs',
@@ -175,30 +276,30 @@ var CASES = {
     problem: 'Operators lose time at each changeover locating and sorting change parts, which extends line downtime.',
     change: 'Keep each format\'s change parts on a dedicated shadow-board trolley parked at the line, laid out in fitting order.',
     rows: [
-      ['Downtime recovered', '6 changeovers/week × 18 min × 48 weeks × $950 per line-hour', 6 * 18 / 60 * 48 * 950]
+      { label: 'Downtime recovered', div: 60, f: [[6, 'changeovers per week'], [18, 'minutes saved each'], [48, 'weeks per year'], [950, '$ per line-hour']] }
     ],
     cost: 3500, costLabel: 'Trolley and shadow boards',
     sop: [
-      ['SOP-PKG-014', 'Line changeover. No conflict: the SOP sets what is fitted and verified, not where parts are stored.'],
-      ['WI-PKG-031', 'Change-part storage. Needs a minor revision to name the trolley as an approved storage location.'],
-      ['SOP-QA-007', 'Line clearance. Unaffected: clearance checks stay as they are.']
+      { id: 'SOP-PKG-014', note: 'Line changeover. No conflict: the SOP sets what is fitted and verified, not where parts are stored.', ref: '§5.3', clause: 'Change parts shall be verified against the format checklist (Form PKG-014-F2) before the line is released.' },
+      { id: 'WI-PKG-031', note: 'Change-part storage. Needs a minor revision to name the trolley as an approved storage location.', ref: '§4.1', clause: 'Change parts not in use shall be stored in the designated change-part cabinet in Room 1.12.' },
+      { id: 'SOP-QA-007', note: 'Line clearance. Unaffected: clearance checks stay as they are.', ref: '§6.2', clause: 'Line clearance shall be performed by the operator and independently verified by a second trained person.' }
     ],
-    next: 'Approve a four-week trial on Line 3 and time ten changeovers before and after.'
+    next: 'Approve a four-week trial on Line 3, time ten changeovers before and after, and revise WI-PKG-031 through change control if the trial is kept.'
   },
   cleaning: {
-    no: 'IF-2026-0143', verdict: 'change', verdictLabel: 'Possible with change control',
+    no: 'IF-2026-0143', verdict: 'change', verdictLabel: 'Needs change control',
     title: 'End the final rinse on a conductivity reading, not a fixed time',
     problem: 'The final rinse on the mixing vessel runs for a fixed duration, using water and vessel time after the rinse water already meets the limit.',
     change: 'End the final rinse when the return-line conductivity meets the acceptance limit, with the current fixed time kept as the maximum.',
     rows: [
-      ['Vessel time recovered', '10 cleans/week × 9 min × 48 weeks × $600 per vessel-hour', 10 * 9 / 60 * 48 * 600],
-      ['Purified water saved', '10 cleans/week × 350 L × 48 weeks × $0.03 per litre', 10 * 350 * 48 * 0.03]
+      { label: 'Vessel time recovered', div: 60, f: [[10, 'cleans per week'], [9, 'minutes saved each'], [48, 'weeks per year'], [600, '$ per vessel-hour']] },
+      { label: 'Purified water saved', div: 1, f: [[10, 'cleans per week'], [350, 'litres saved each'], [48, 'weeks per year'], [0.03, '$ per litre']] }
     ],
     cost: 18000, costLabel: 'Cleaning validation study',
     sop: [
-      ['SOP-CLN-009', 'Vessel CIP cycle. Conflict as written: the SOP fixes the rinse time, so it must be revised.'],
-      ['SOP-QA-021', 'Change control. A change request is required before any trial.'],
-      ['VAL-CLN-004', 'Cleaning validation. Three successful runs on the new endpoint are needed before routine use.']
+      { id: 'SOP-CLN-009', note: 'Vessel CIP cycle. Conflict as written: the SOP fixes the rinse time, so it must be revised.', ref: '§7.4', clause: 'The final rinse shall run for 12 minutes at the validated flow rate.' },
+      { id: 'SOP-QA-021', note: 'Change control. A change request is required before any trial.', ref: '§3.1', clause: 'Any change to a validated cleaning process requires an approved change request before implementation.' },
+      { id: 'VAL-CLN-004', note: 'Cleaning validation. Three successful runs on the new endpoint are needed before routine use.', ref: '§9.2', clause: 'A revised cleaning endpoint shall be demonstrated in three consecutive successful runs.' }
     ],
     next: 'Raise a change request and ask Validation to scope a three-run study.'
   },
@@ -208,154 +309,261 @@ var CASES = {
     problem: 'Good labels are discarded at every reel change because the splice position is not visible to the operator.',
     change: 'Ask the label supplier to add a visible splice marker to each reel so only the spliced labels are removed.',
     rows: [
-      ['Labels saved', '14 reel changes/day × 35 labels × 240 days × $0.08 per label', 14 * 35 * 240 * 0.08],
-      ['Reconciliation time saved', '14 reel changes/day × 2 min × 240 days × $45 per labour-hour', 14 * 2 / 60 * 240 * 45]
+      { label: 'Labels saved', div: 1, f: [[14, 'reel changes per day'], [35, 'labels saved each'], [240, 'days per year'], [0.08, '$ per label']] },
+      { label: 'Reconciliation time saved', div: 60, f: [[14, 'reel changes per day'], [2, 'minutes saved each'], [240, 'days per year'], [45, '$ per labour-hour']] }
     ],
     cost: 600, costLabel: 'Supplier artwork change',
     sop: [
-      ['SOP-PKG-022', 'Label reconciliation. No conflict: every removed label is still counted and recorded.'],
-      ['WI-PKG-040', 'Reel change. Needs one added step to check for the splice marker.'],
-      ['SOP-PUR-005', 'Supplier specifications. The reel specification needs an update agreed with the supplier.']
+      { id: 'SOP-PKG-022', note: 'Label reconciliation. No conflict: every removed label is still counted and recorded.', ref: '§5.6', clause: 'All labels removed from the line shall be counted and recorded on the batch reconciliation sheet.' },
+      { id: 'WI-PKG-040', note: 'Reel change. Needs one added step to check for the splice marker.', ref: '§3.2', clause: 'At each reel change, remove labels until the first full label after the splice.' },
+      { id: 'SOP-PUR-005', note: 'Supplier specifications. The reel specification needs an update agreed with the supplier.', ref: '§4.3', clause: 'Changes to component specifications shall be agreed in writing with the approved supplier.' }
     ],
     next: 'Ask Purchasing to request marked sample reels and run them on one line for two weeks.'
   }
 };
 
 var CONFLICT = {
-  no: 'IF-2026-0145', verdict: 'conflict', verdictLabel: 'Conflicts with a GMP control',
+  no: 'IF-2026-0145', verdictLabel: 'Conflicts with a GMP control',
   title: 'Remove the second-person check on line clearance',
   problem: 'The second-person line clearance check adds time to every changeover and rarely finds anything.',
   why: 'Independent verification of line clearance is a required control against product and label mix-ups. IntraForge has not sent this idea to site leadership in its current form.',
   sop: [
-    ['SOP-QA-007', 'Line clearance. Direct conflict: a second, independent check is mandatory.'],
-    ['SOP-QA-021', 'Change control. Removing a GMP control would need a quality risk assessment and is unlikely to be approved.']
+    { id: 'SOP-QA-007', note: 'Line clearance. Direct conflict: a second, independent check is mandatory.', ref: '§6.2', clause: 'Line clearance shall be performed by the operator and independently verified by a second trained person.' },
+    { id: 'SOP-QA-021', note: 'Change control. Removing a GMP control would need a quality risk assessment and is unlikely to be approved.', ref: '§3.4', clause: 'Changes that remove or weaken a GMP control require a documented quality risk assessment approved by the Head of Quality.' }
   ],
   alt: 'Keep the second check but make it faster: a barcode-scan checklist on a tablet that guides the verifier through each clearance point and records the result.',
-  next: 'Edit your idea to keep the check and describe what slows it down, then build the case again.'
+  altIdea: 'Line clearance verification takes too long because the second checker works from a paper list. Could we keep the second-person check but use a barcode-scan checklist on a tablet so it is faster and recorded automatically?'
 };
 
 var KEYS = {
-  conflict: ['skip', 'bypass', 'get rid of', 'remove the check', 'remove the second', 'drop the second', 'stop doing', 'without sign', 'no need to sign', 'without the second'],
+  conflict: ['skip', 'bypass', 'get rid of', 'remove the check', 'remove the second', 'drop the second', 'stop doing', 'without sign', 'no need to sign', 'without the second', 'ignore the sop', 'cut the check'],
   changeover: ['changeover', 'change over', 'change-over', 'change part', 'setup', 'set-up', 'format change', 'tooling'],
-  cleaning: ['clean', 'cip', 'rinse', 'wash', 'sanitis', 'sanitiz', 'wfi', 'water'],
-  labels: ['label', 'reel', 'splice', 'scrap', 'waste', 'reject']
+  cleaning: ['clean', 'cip', 'rinse', 'wash', 'sanitis', 'sanitiz', 'wfi', 'conductivity'],
+  labels: ['label', 'reel', 'splice', 'carton', 'leaflet']
 };
+var AREA_NAMES = { changeover: 'Changeover', cleaning: 'Cleaning and sanitation', labels: 'Packaging and labelling', quality: 'Quality checks', other: 'Somewhere else' };
 
-function count(text, keys) {
-  var n = 0;
-  for (var i = 0; i < keys.length; i++) if (text.indexOf(keys[i]) !== -1) n++;
-  return n;
-}
+function hits(text, keys) { return keys.filter(function (k) { return text.indexOf(k) !== -1; }); }
 
-/* Simulated AI: returns which prewritten response to show. */
-function analyse(raw) {
+/* Simulated AI: decides which prewritten response to show. Pure function, no DOM. */
+function analyse(area, raw) {
   var text = (raw || '').trim();
-  if (!text) return { type: 'error', message: 'Describe your idea first. One or two sentences is enough.' };
-  if (text.split(/\s+/).length < 5) return { type: 'error', message: 'Add a little more detail: what would you change, and where?' };
+  if (!area) return { type: 'error', field: 'area', message: 'Choose the area your idea applies to.' };
+  if (!text) return { type: 'error', field: 'idea', message: 'Describe your idea first. One or two sentences is enough.' };
+  if (text.split(/\s+/).length < 5) return { type: 'error', field: 'idea', message: 'Add a little more detail: what would you change, and where?' };
   var t = text.toLowerCase();
-  if (count(t, KEYS.conflict) > 0) return { type: 'conflict' };
-  var best = null, bestN = 0;
-  ['changeover', 'cleaning', 'labels'].forEach(function (k) {
-    var n = count(t, KEYS[k]);
-    if (n > bestN) { best = k; bestN = n; }
-  });
-  if (best) return { type: 'case', key: best };
-  return { type: 'detail' };
+  var c = hits(t, KEYS.conflict);
+  if (c.length) return { type: 'conflict', matched: c };
+  if (CASES[area]) {
+    var h = hits(t, KEYS[area]);
+    if (h.length) return { type: 'case', key: area, matched: h };
+  }
+  return { type: 'followup' };
 }
 
+function rowValue(r) { return r.f.reduce(function (p, x) { return p * x[0]; }, 1) / r.div; }
 function totals(c) {
-  var annual = c.rows.reduce(function (s, r) { return s + r[2]; }, 0);
-  var weeks = c.cost / annual * 52;
+  var annual = c.rows.reduce(function (s, r) { return s + rowValue(r); }, 0);
+  var payback;
+  if (!c.cost) payback = 'Not estimated';
+  else if (annual <= 0) payback = 'Never';
+  else { var w = c.cost / annual * 52; payback = w < 9 ? Math.max(1, Math.round(w)) + ' weeks' : (c.cost / annual * 12).toFixed(1) + ' months'; }
+  return { annual: annual, payback: payback, share: c.cost ? Math.max(0, annual - c.cost) * SHARE : null };
+}
+
+/* Builds a business case from the follow-up answers, using only the user's figures plus a default rate. */
+var LOSS = {
+  time: { unit: 'minutes lost each time', rate: [950, '$ per line-hour'], div: 60, label: 'Downtime recovered', title: 'Cut downtime', phrase: 'minutes of line time' },
+  material: { unit: 'units thrown away each time', rate: [2.5, '$ per unit'], div: 1, label: 'Material saved', title: 'Cut material waste', phrase: 'units of material' },
+  rework: { unit: 'minutes of rework each time', rate: [45, '$ per labour-hour'], div: 60, label: 'Rework time saved', title: 'Cut rework', phrase: 'minutes of rework' }
+};
+var PERIOD = { day: [240, 'days per year'], week: [48, 'weeks per year'], month: [12, 'months per year'] };
+function buildGeneric(a) {
+  var L = LOSS[a.loss], P = PERIOD[a.period];
   return {
-    annual: annual,
-    payback: weeks < 9 ? 'about ' + Math.max(1, Math.round(weeks)) + ' weeks' : 'about ' + (c.cost / annual * 12).toFixed(1) + ' months',
-    share: (annual - c.cost) * SHARE
+    no: 'IF-2026-0146', verdict: 'unknown', verdictLabel: 'SOP check incomplete', generic: true,
+    title: L.title + ' on ' + a.where,
+    problem: 'On ' + a.where + ', about ' + fmt(a.amount) + ' ' + L.phrase + ' ' + (a.loss === 'material' ? 'are' : 'is') + ' lost ' + fmt(a.often) + ' times per ' + a.period + '.',
+    change: a.change,
+    rows: [{ label: L.label, div: L.div, f: [[a.often, 'times per ' + a.period], [a.amount, L.unit], [P[0], P[1]], [L.rate[0], L.rate[1]]] }],
+    cost: 0, costLabel: 'One-off cost, not yet estimated',
+    sop: [],
+    next: 'Ask the area\'s QA partner which SOPs and work instructions govern ' + a.where + ', then log the loss for two weeks to confirm the figures before a trial.'
   };
 }
 
+function shareText(t) { return t.share === null ? 'Add the cost first' : money(t.share); }
+function fmt(n) { return (+n).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
 function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
 
 if (typeof document !== 'undefined') {
-  var form = document.getElementById('ideaForm'), idea = document.getElementById('idea'), area = document.getElementById('area');
-  var err = document.getElementById('ideaErr'), out = document.getElementById('result'), go = document.getElementById('go');
+  var $ = function (id) { return document.getElementById(id); };
+  var form = $('ideaForm'), idea = $('idea'), area = $('area'), out = $('result'), go = $('go');
+  var fuForm = $('fuForm');
+  var current = null, ideaText = '';
 
-  function head(no, status) {
+  function setStep(n, skipped2) {
+    [1, 2, 3].forEach(function (i) {
+      var li = $('st' + i);
+      li.className = i === n ? 'now' : (i < n ? (i === 2 && skipped2 ? 'skip' : 'done') : '');
+    });
+  }
+  function fieldErr(input, errEl, msg) { errEl.textContent = msg; errEl.hidden = false; input.setAttribute('aria-invalid', 'true'); input.focus(); }
+  function clearErrs() { ['areaErr', 'ideaErr', 'fuErr'].forEach(function (id) { $(id).hidden = true; }); document.querySelectorAll('[aria-invalid]').forEach(function (el) { el.removeAttribute('aria-invalid'); }); }
+
+  /* Live hints: what a strong idea includes. */
+  function updateHints() {
+    var t = idea.value.toLowerCase();
+    $('h-where').classList.toggle('have', /\b(line|machine|filler|vessel|room|reel|labeller|press|tank|station|shift|bay)\b/.test(t));
+    $('h-loss').classList.toggle('have', /(lose|lost|waste|scrap|throw|time|minute|hour|delay|slow|stop|jam|rework|wait)/.test(t));
+    $('h-change').classList.toggle('have', /(could we|should|would|instead|keep|add|use|move|change|replace|put|marker|trolley)/.test(t));
+  }
+
+  function head(c, status) {
     return '<dl class="dochead">' +
-      '<div><dt>Case no.</dt><dd>' + no + '</dd></div>' +
+      '<div><dt>Case no.</dt><dd>' + c.no + '</dd></div>' +
       '<div><dt>Revision</dt><dd>0.1 draft</dd></div>' +
-      '<div><dt>Area</dt><dd>' + esc(area.value) + '</dd></div>' +
-      '<div><dt>Status</dt><dd>' + status + '</dd></div></dl>';
+      '<div><dt>Area</dt><dd>' + esc(AREA_NAMES[area.value] || '') + '</dd></div>' +
+      '<div><dt>Status</dt><dd id="docStatus">' + status + '</dd></div></dl>';
   }
+  function readAs(text) { return '<div class="readas"><span>How the simulated AI read this:</span>' + text + '</div>'; }
   function sopList(items) {
-    return '<ul class="sop">' + items.map(function (s) { return '<li><code>' + s[0] + '</code><span>' + esc(s[1]) + '</span></li>'; }).join('') + '</ul>';
-  }
-  function footer() {
-    return '<div class="foot"><p class="small">Simulated AI output. Sample figures and document numbers.</p><button type="button" class="ghost" id="again">Start a new idea</button></div>';
+    return '<ul class="sop">' + items.map(function (s) {
+      return '<li><div class="line1"><code>' + s.id + '</code><span>' + esc(s.note) + '</span></div>' +
+        '<details><summary>Show the clause this relies on</summary><p class="clause"><span class="ref">' + s.id + ' ' + s.ref + ' (sample text)</span>' + esc(s.clause) + '</p></details></li>';
+    }).join('') + '</ul>';
   }
   function yours(text) { return '<div class="sec"><h3>What you wrote</h3><p class="quote">' + esc(text) + '</p></div>'; }
 
-  function renderCase(c, text) {
+  function estimateHTML(c) {
+    return c.rows.map(function (r, ri) {
+      var f = r.f.map(function (x, fi) {
+        return '<input type="number" step="any" min="0" id="f' + ri + '_' + fi + '" data-r="' + ri + '" data-f="' + fi + '" value="' + x[0] + '" class="' + (c.generic && fi < 2 ? '' : 'ai') + '" aria-label="' + esc(x[1]) + '"> <span>' + esc(x[1]) + '</span>';
+      }).join(' <span aria-hidden="true">×</span> ');
+      return '<div class="estrow"><div class="head"><span>' + r.label + '</span><span class="num" id="rv' + ri + '">' + money(rowValue(r)) + ' / yr</span></div><div class="factors">' + f + '</div></div>';
+    }).join('') +
+    '<div class="estrow"><div class="head"><span>One-off cost</span></div><div class="factors"><input type="number" step="any" min="0" id="cost" value="' + c.cost + '" class="ai" aria-label="One-off cost in dollars"> <span>$ ' + esc(c.costLabel) + '</span></div></div>';
+  }
+  function summaryHTML(c) {
     var t = totals(c);
-    var rows = c.rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td class="num">' + money(r[2]) + '</td></tr>'; }).join('');
-    return head(c.no, 'Ready for review') + '<div class="body">' +
+    return '<div class="summary">' +
+      '<div><div class="k">Saving per year</div><div class="v" id="sAnnual">' + money(t.annual) + '</div></div>' +
+      '<div><div class="k">Payback</div><div class="v sm" id="sPayback">' + t.payback + '</div></div>' +
+      '<div><div class="k">SOP check</div><div class="v sm">' + c.verdictLabel + '</div></div>' +
+      '<div><div class="k">Your share (5%)</div><div class="v sm" id="sShare">' + shareText(t) + '</div></div></div>';
+  }
+  function reviewHTML() {
+    return '<div class="review" id="reviewBox">' +
+      '<label class="tick" for="chk"><input type="checkbox" id="chk"> <span>I have checked the figures and the SOP references. I understand the dashed figures are estimates and that QA must confirm the SOP check.</span></label>' +
+      '<p class="err" id="sendErr" role="alert" hidden></p>' +
+      '<div class="btns"><button type="button" class="go" id="send">Send to site leadership</button><button type="button" class="ghost" id="editIdea">Edit my idea</button><button type="button" class="linkbtn" id="again">Start a new idea</button></div></div>';
+  }
+
+  function renderCase(c, text, matched) {
+    current = c;
+    var sopBlock = c.sop.length ? sopList(c.sop) :
+      '<p>No SOP in the sample library matched this idea. IntraForge does not guess document numbers: QA must name the SOPs and work instructions that govern this area before the case is approved.</p>';
+    out.innerHTML = head(c, 'Draft, not sent') + '<div class="body">' +
       '<div class="titleline"><h2>' + esc(c.title) + '</h2><span class="pill ' + c.verdict + '">' + c.verdictLabel + '</span></div>' +
+      readAs(matched ? 'matched the <strong>' + AREA_NAMES[area.value] + '</strong> template on <code>' + matched.map(esc).join('</code>, <code>') + '</code>. <button type="button" class="linkbtn" id="wrong">Not what you meant?</button>' : 'no template matched, so this case uses <strong>your answers</strong> and default cost rates.') +
+      summaryHTML(c) +
       yours(text) +
       '<div class="sec"><h3>Problem</h3><p>' + esc(c.problem) + '</p></div>' +
       '<div class="sec"><h3>Proposed change</h3><p>' + esc(c.change) + '</p></div>' +
-      '<div class="saving"><div><div class="big">' + money(t.annual) + '</div><div class="side">estimated saving per year</div></div>' +
-      '<div class="side">One-off cost ' + money(c.cost) + '<br>Payback ' + t.payback + '</div>' +
-      '<div class="side">Your share (5% of first-year net)<br><strong>' + money(t.share) + '</strong></div></div>' +
-      '<div class="sec"><h3>How the saving was estimated</h3><div class="tablewrap"><table><thead><tr><th>Item</th><th>Assumption</th><th class="num">Per year</th></tr></thead><tbody>' + rows +
-      '<tr class="total"><td>Total</td><td>One-off cost: ' + esc(c.costLabel) + ', ' + money(c.cost) + '</td><td class="num">' + money(t.annual) + '</td></tr></tbody></table></div></div>' +
-      '<div class="sec"><h3>SOP and work instruction check</h3>' + sopList(c.sop) + '</div>' +
+      '<div class="sec"><h3>How the saving was estimated</h3><div class="legend"><span><i class="swatch"></i>Estimated by IntraForge: check it</span><span><i class="swatch you"></i>From you, or changed by you</span></div>' +
+      '<div class="est" id="est">' + estimateHTML(c) + '</div></div>' +
+      '<div class="sec"><h3>SOP and work instruction check</h3>' + sopBlock + '</div>' +
       '<div class="sec"><h3>Recommended next step for site leadership</h3><p>' + esc(c.next) + '</p></div>' +
-      footer() + '</div>';
+      reviewHTML() + '</div>';
+    setStep(3, !c.generic);
   }
-  function renderConflict(c, text) {
-    return head(c.no, 'Returned to you') + '<div class="body">' +
+  function renderConflict(c, text, matched) {
+    current = null;
+    out.innerHTML = head(c, 'Returned to you') + '<div class="body">' +
       '<div class="titleline"><h2>' + esc(c.title) + '</h2><span class="pill conflict">' + c.verdictLabel + '</span></div>' +
+      readAs('flagged words that remove a control: <code>' + matched.map(esc).join('</code>, <code>') + '</code>') +
       yours(text) +
       '<div class="sec"><h3>Problem you raised</h3><p>' + esc(c.problem) + '</p></div>' +
       '<div class="sec"><h3>Why it was not sent on</h3><p>' + esc(c.why) + '</p></div>' +
       '<div class="sec"><h3>SOP and work instruction check</h3>' + sopList(c.sop) + '</div>' +
       '<div class="sec"><h3>A version that could work</h3><p>' + esc(c.alt) + '</p></div>' +
-      '<div class="sec"><h3>What to do next</h3><p>' + esc(c.next) + '</p></div>' +
-      footer() + '</div>';
-  }
-  function renderDetail(text) {
-    return head('IF-2026-0146', 'Needs detail') + '<div class="body">' +
-      '<div class="titleline"><h2>Two more details and this becomes a business case</h2><span class="pill change">Not enough to estimate yet</span></div>' +
-      yours(text) +
-      '<div class="sec"><h3>What is missing</h3><p>IntraForge could not tie this idea to a process, a piece of equipment or a cost. Add answers to these to your idea and build the case again:</p></div>' +
-      '<ol class="qs"><li>Which line, machine or task does it affect?</li><li>What is lost today: time, material, or rework? Roughly how much, and how often?</li><li>What exactly would be done differently?</li></ol>' +
-      '<div class="foot"><p class="small">Simulated AI output.</p><button type="button" class="ghost" id="edit">Add detail to my idea</button></div></div>';
+      '<div class="btns"><button type="button" class="go" id="useAlt">Use this version instead</button><button type="button" class="ghost" id="editIdea">Edit my idea</button></div></div>';
+    setStep(3, true);
   }
 
-  function showError(msg) { err.textContent = msg; err.hidden = false; idea.setAttribute('aria-invalid', 'true'); idea.focus(); }
-  function clearError() { err.hidden = true; idea.removeAttribute('aria-invalid'); }
+  function recalc() {
+    if (!current) return;
+    document.querySelectorAll('#est input[data-r]').forEach(function (inp) {
+      var v = parseFloat(inp.value); current.rows[+inp.dataset.r].f[+inp.dataset.f][0] = isFinite(v) && v >= 0 ? v : 0;
+    });
+    var cv = parseFloat($('cost').value); current.cost = isFinite(cv) && cv >= 0 ? cv : 0;
+    current.rows.forEach(function (r, i) { $('rv' + i).textContent = money(rowValue(r)) + ' / yr'; });
+    var t = totals(current);
+    $('sAnnual').textContent = money(t.annual); $('sPayback').textContent = t.payback; $('sShare').textContent = shareText(t);
+  }
+  function cloneCase(c) { return JSON.parse(JSON.stringify(c)); }
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var text = idea.value.trim(), r = analyse(text);
-    if (r.type === 'error') { showError(r.message); return; }
-    clearError();
+  function showWorking(then) {
     go.disabled = true; go.textContent = 'Building…';
     out.innerHTML = '<div class="working">Reading your idea…<br>Checking SOPs and work instructions…<br>Estimating the saving…</div>';
-    setTimeout(function () {
-      out.innerHTML = r.type === 'case' ? renderCase(CASES[r.key], text) : r.type === 'conflict' ? renderConflict(CONFLICT, text) : renderDetail(text);
-      go.disabled = false; go.textContent = 'Build business case';
-      if (window.matchMedia('(max-width: 820px)').matches) out.scrollIntoView({ block: 'start' });
-    }, 900);
+    setTimeout(function () { go.disabled = false; go.textContent = 'Build business case'; then(); if (window.matchMedia('(max-width: 860px)').matches) out.scrollIntoView({ block: 'start' }); }, 700);
+  }
+  function openFollowup() {
+    form.hidden = true; fuForm.hidden = false; setStep(2);
+    if (!$('fu-change').value) $('fu-change').value = ideaText;
+    out.innerHTML = '<div class="empty"><h2>Two minutes of detail</h2><p>Your idea did not match a process IntraForge knows, so it is asking rather than guessing.</p>' + '<div class="sec" style="margin-top:12px"><h3>What you wrote</h3><p class="quote">' + esc(ideaText) + '</p></div></div>';
+    $('fu-where').focus();
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); clearErrs();
+    ideaText = idea.value.trim();
+    var r = analyse(area.value, ideaText);
+    if (r.type === 'error') { r.field === 'area' ? fieldErr(area, $('areaErr'), r.message) : fieldErr(idea, $('ideaErr'), r.message); return; }
+    if (r.type === 'followup') { $('fu-change').value = ''; openFollowup(); return; }
+    showWorking(function () { r.type === 'case' ? renderCase(cloneCase(CASES[r.key]), ideaText, r.matched) : renderConflict(CONFLICT, ideaText, r.matched); });
   });
-  idea.addEventListener('input', clearError);
+
+  fuForm.addEventListener('submit', function (e) {
+    e.preventDefault(); clearErrs();
+    var a = { where: $('fu-where').value.trim(), loss: $('fu-loss').value, often: parseFloat($('fu-often').value), period: $('fu-period').value, amount: parseFloat($('fu-amount').value), change: $('fu-change').value.trim() };
+    var bad = !a.where ? ['fu-where', 'Say which line, machine or task this affects.'] :
+      !a.loss ? ['fu-loss', 'Choose what is lost today.'] :
+      !(a.often > 0) ? ['fu-often', 'Enter how often it happens, as a number above 0.'] :
+      !(a.amount > 0) ? ['fu-amount', 'Enter how much is lost each time, as a number above 0.'] :
+      !a.change ? ['fu-change', 'Say what you would do differently.'] : null;
+    if (bad) { fieldErr($(bad[0]), $('fuErr'), bad[1]); return; }
+    fuForm.hidden = true; form.hidden = false;
+    showWorking(function () { renderCase(buildGeneric(a), ideaText, null); });
+  });
+  $('fu-loss').addEventListener('change', function () { $('fu-amount-lbl').textContent = this.value ? 'How much is lost each time? (' + LOSS[this.value].unit.replace(' each time', '') + ')' : 'How much is lost each time?'; });
+  $('fuBack').addEventListener('click', function () { fuForm.hidden = true; form.hidden = false; setStep(1); idea.focus(); });
+
+  idea.addEventListener('input', function () { clearErrs(); updateHints(); });
+  area.addEventListener('change', clearErrs);
   document.querySelectorAll('.chip').forEach(function (b) {
-    b.addEventListener('click', function () { var ex = EXAMPLES[+b.dataset.ex]; idea.value = ex.text; area.value = ex.area; clearError(); idea.focus(); });
+    b.addEventListener('click', function () { var ex = EXAMPLES[+b.dataset.ex]; idea.value = ex.text; area.value = ex.area; clearErrs(); updateHints(); fuForm.hidden = true; form.hidden = false; setStep(1); idea.focus(); });
+  });
+
+  out.addEventListener('input', function (e) {
+    if (e.target.matches('#est input')) { e.target.classList.remove('ai'); recalc(); var chk = $('chk'); if (chk) chk.checked = false; }
   });
   out.addEventListener('click', function (e) {
-    if (e.target.id === 'again') { idea.value = ''; idea.focus(); out.innerHTML = '<div class="empty"><h2>Ready for your next idea</h2><p>Write it on the left and press <strong>Build business case</strong>.</p></div>'; }
-    if (e.target.id === 'edit') { idea.focus(); idea.setSelectionRange(idea.value.length, idea.value.length); }
+    var id = e.target.id;
+    if (id === 'send') {
+      if (!$('chk').checked) { var se = $('sendErr'); se.textContent = 'Tick the box to confirm you have checked the figures and SOP references before sending.'; se.hidden = false; $('chk').focus(); return; }
+      var t = totals(current);
+      $('reviewBox').outerHTML = '<div class="sent"><strong>Sent for review (simulated).</strong> In the full product, case ' + current.no + ' would go to site leadership and QA with your checked figures: ' + money(t.annual) + ' a year. Nothing was actually sent.</div><div class="btns"><button type="button" class="linkbtn" id="again">Start a new idea</button></div>';
+      $('docStatus').textContent = 'Sent for review';
+    }
+    if (id === 'editIdea' || id === 'wrong') { form.hidden = false; fuForm.hidden = true; setStep(1); idea.focus(); }
+    if (id === 'wrong') { $('fu-change').value = ''; openFollowup(); }
+    if (id === 'useAlt') { idea.value = CONFLICT.altIdea; updateHints(); form.hidden = false; setStep(1); idea.focus(); out.innerHTML = '<div class="empty"><h2>Revised idea ready</h2><p>Check the wording on the left, choose <strong>Somewhere else</strong> or keep <strong>Quality checks</strong>, and press <strong>Build business case</strong>.</p></div>'; }
+    if (id === 'again') { idea.value = ''; area.value = ''; updateHints(); current = null; ['fu-where', 'fu-often', 'fu-amount', 'fu-change'].forEach(function (i) { $(i).value = ''; }); $('fu-loss').value = ''; form.hidden = false; fuForm.hidden = true; setStep(1); idea.focus(); out.innerHTML = '<div class="empty"><h2>Ready for your next idea</h2><p>Write it on the left and press <strong>Build business case</strong>.</p></div>'; }
   });
+  out.addEventListener('change', function (e) { if (e.target.id === 'chk') $('sendErr').hidden = true; });
+  updateHints();
 }
 </script>
 </body>
