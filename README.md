@@ -6,7 +6,6 @@ IntraForge turns a rough improvement idea from a frontline worker at a GMP-regul
 
 ## Try the prototype
 
-**Live prototype: https://benkiely1.github.io/Gen-AI-Class/**
 
 No sign-in is needed. Pick an area, describe an idea (or tap an example), and press **Build business case**. You can also download [`index.html`](index.html) and open it in any browser.
 
@@ -14,7 +13,7 @@ The AI is simulated (Wizard of Oz). See [AI role and status](#ai-role-and-status
 
 ## Demo Video
 
-**Draft demo: ADD GOOGLE DRIVE LINK HERE** (shared with Emelia Hughes and Samuel Huang). Speaking notes: [demo-script.md](demo-script.md).
+**Draft demo: https://drive.google.com/file/d/1crTWNt7sK6L89wRWSatYoDzESYRnN4vc/view?usp=sharing (shared with Emelia Hughes and Samuel Huang). 
 
 ## What is in this repository
 
