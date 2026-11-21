@@ -5,14 +5,16 @@ IntraForge turns a rough improvement idea from a frontline worker at a GMP-regul
 **Intended user:** operators and technicians on the shop floor of pharma, medtech and food manufacturing sites. They see waste every day but have no time or template to turn an idea into something leadership can approve. Site leaders and QA are the people who read the result.
 
 ## Try the prototype
-https://benkiely1.github.io/Gen-AI-Class/ 
+
+**Live prototype: [benkiely1.github.io/Gen-AI-Class](https://benkiely1.github.io/Gen-AI-Class/)**
+
 No sign-in is needed. Pick an area, describe an idea (or tap an example), and press **Build business case**. You can also download [`index.html`](index.html) and open it in any browser.
 
 The AI is simulated (Wizard of Oz). See [AI role and status](#ai-role-and-status). Use sample information only.
 
 ## Demo Video
 
-**Draft demo: https://drive.google.com/file/d/1crTWNt7sK6L89wRWSatYoDzESYRnN4vc/view?usp=sharing (shared with Emelia Hughes and Samuel Huang). 
+**Draft demo video: [watch on Google Drive](https://drive.google.com/file/d/1crTWNt7sK6L89wRWSatYoDzESYRnN4vc/view?usp=sharing)** (shared with Emelia Hughes and Samuel Huang). Speaking notes: [demo-script.md](demo-script.md).
 
 ## What is in this repository
 
