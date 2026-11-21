@@ -4,7 +4,7 @@ Back to the [README](README.md).
 
 ## Tools used
 
-- **Claude (Anthropic), in the Claude app.** I used it to write the prototype code, publish it to GitHub, run the browser tests, and draft this documentation.
+- **Claude (Anthropic), in the Claude app.** I used it to write the prototype code, I published to Github and wrote the documentation. It provided some structure for each file.
 - **Playwright with Chromium**, run by Claude, to click through the prototype automatically and take the screenshots in `evidence/`.
 - **Replit was not used.** The brief suggests Replit. I built the prototype with Claude as a single HTML file and host it on GitHub Pages instead, so there is nothing to install and no API key.
 
